@@ -1,78 +1,67 @@
 # PyFold
 > A python package for protein folding and molecular visualization.
 
-[![NPM Version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
-[![Downloads Stats][npm-downloads]][npm-url]
+Installation tested in a Ubuntu16 system.
 
-One to two paragraph statement about your product and what it does.
-
-![](header.png)
-
-## Installation
-
-OS X & Linux:
-
-```sh
-npm install my-crazy-module --save
+## Install CNS Suite
+#### 1. Download CNS suite   
+Provide your academic profile related information at http://cns-online.org/cns_request/. An email with (a) link to download, (b) login, and (c) password will be sent to you. Follow the link, possibly http://cns-online.org/download/, and download CNS suite "cns_solve_1.3_all_intel-mac_linux.tar.gz".
+#### 2. Unzip  
+```bash
+tar xzvf cns_solve_1.3_all_intel-mac_linux.tar.gz
+```
+#### 3. Change directory to cns_solve  
+```bash
+cd cns_solve_1.3
+```
+#### 4. Unhide the file '.cns_solve_env_sh'  
+```bash
+mv .cns_solve_env_sh cns_solve_env.sh
+```
+#### 5. Edit path in 'cns_solve_env.sh'  
+Replace '_CNSsolve_location_' with CNS installation directory. For instance, if your CNS installation path is '/home/user/programs/cns_solve_1.3' replace '_CNSsolve_location_' with this path
+```bash
+vim cns_solve_env.sh
+```
+#### 6. Test CNS installation  
+```bash
+source cns_solve_env.sh
+cd test 
+../bin/run_tests -tidy *.inp
+```
+#### 7. Change directory  
+```bash
+cd ../../
 ```
 
-Windows:
-
-```sh
-edit autoexec.bat
+## Configure and test 'pyfold.py' -- test steps to be added in future release 
+#### 1. Update paths for the variables '$cns_suite' and '$program_dssp'  
+```bash
+vim pyfold.py
 ```
-
-## Usage example
-
-A few motivating and useful examples of how your product can be used. Spice this up with code blocks and potentially more screenshots.
-
-_For more examples and usage, please refer to the [Wiki][wiki]._
-
-## Development setup
-
-Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
-
-```sh
-make install
-npm test
+```python
+program_dssp   = "$DIR_BASE/dssp-2.0.4-linux-amd64"
+cns_suite      = "/home/badri/DISTFOLD/cns_solve_1.3"
 ```
-
-## Release History
-
-* 0.2.1
-    * CHANGE: Update docs (module code remains unchanged)
-* 0.2.0
-    * CHANGE: Remove `setDefaultXYZ()`
-    * ADD: Add `init()`
-* 0.1.1
-    * FIX: Crash when calling `baz()` (Thanks @GenerousContributorName!)
-* 0.1.0
-    * The first proper release
-    * CHANGE: Rename `foo()` to `bar()`
-* 0.0.1
-    * Work in progress
-
-## Meta
-
-Your Name – [@YourTwitter](https://twitter.com/dbader_org) – YourEmail@example.com
-
-Distributed under the XYZ license. See ``LICENSE`` for more information.
-
-[https://github.com/yourname/github-link](https://github.com/dbader/)
-
-## Contributing
-
-1. Fork it (<https://github.com/yourname/yourproject/fork>)
-2. Create your feature branch (`git checkout -b feature/fooBar`)
-3. Commit your changes (`git commit -am 'Add some fooBar'`)
-4. Push to the branch (`git push origin feature/fooBar`)
-5. Create a new Pull Request
-
-<!-- Markdown link & img dfn's -->
-[npm-image]: https://img.shields.io/npm/v/datadog-metrics.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/datadog-metrics
-[npm-downloads]: https://img.shields.io/npm/dm/datadog-metrics.svg?style=flat-square
-[travis-image]: https://img.shields.io/travis/dbader/node-datadog-metrics/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/dbader/node-datadog-metrics
-[wiki]: https://github.com/yourname/yourproject/wiki
+#### 2. Test  
+##### Example with distances as input (1a3aA)  
+a. Build models  
+```bash
+cd test
+rm -r output-1a3aA
+python ../pyfold.py -rr ./1a3aA.dist.rr -ss ./1a3aA.ss_sa -o ./output-1a3aA -mcount 20 -selectrr 1.0L
+```
+b. Evaluate the models
+```bash
+python ./eval-using-tmscore.py 1guu.pdb output-1guu/ all header
+```
+##### Example with contacts as input (1guu)  
+a. Build models
+```bash
+rm -r output-1guu
+python ../pyfold.py -rr ./1guu.rr -ss ./1guu.ss -o ./output-1guu -mcount 20 -selectrr 1.0L
+```
+b. Evaluate the models
+```bash
+python ./eval-using-tmscore.py 1a3aA.pdb output-1a3aA all header
+```
